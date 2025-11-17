@@ -23,25 +23,15 @@ jobs:
       - name: Build
         run: |
           cmake -B build -S . ${{ matrix.cmake_args }} -DCMAKE_BUILD_TYPE=Release -DASSIMP_BUILD_TESTS=OFF -DASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT=OFF -DASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT=OFF -DASSIMP_BUILD_GLTF_IMPORTER=ON
-          cmake --build build --config Release
-
-      - uses: TheDoctor0/zip-release@0.7.6
-        with:
-          filename: ${{ matrix.name }}.zip
-          directory: build/bin/
-
-      - uses: TheDoctor0/zip-release@0.7.6
-        with:
-          filename: ${{ matrix.name }}.zip
-          directory: build/lib/
+          cmake --build build --config Release --parallel 8
 
       - uses: actions/upload-artifact@v4
         with:
           name: library artifact
-          path: build/library/${{ matrix.name }}.zip
+          path: build/library/
           
       - uses: actions/upload-artifact@v4
         with:
           name: binary artifact
-          path: build/bin/${{ matrix.name }}.zip
+          path: build/bin/
           
