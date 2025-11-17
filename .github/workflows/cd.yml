@@ -22,41 +22,26 @@ jobs:
       
       - name: Build
         run: |
-          cmake -B build -S . ${{ matrix.cmake_args }} -DCMAKE_BUILD_TYPE=Release -DASSIMP_BUILD_TESTS=OFF
+          cmake -B build -S . ${{ matrix.cmake_args }} -DCMAKE_BUILD_TYPE=Release -DASSIMP_BUILD_TESTS=OFF -DASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT=OFF -DASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT=OFF -DASSIMP_BUILD_GLTF_IMPORTER=ON
           cmake --build build --config Release
-          
-      - name: list files
-        run: |
-          ls
-          cd build
-          ls
-          cd ../
-          ls
-
-      - name: Tag the repository
-        id: tag
-        run: |
-          # See https://docs.github.com/en/get-started/using-git/dealing-with-special-characters-in-branch-and-tag-names
-          TAG=v$(date -Iseconds | sed 's/[T:\+]/-/g')
-          echo "$TAG"
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
-          git tag -a $TAG -m "Published version $TAG" ${GITHUB_SHA}
-          git push origin $TAG
 
       - uses: TheDoctor0/zip-release@0.7.6
         with:
-          filename: ${{ matrix.name }}-${{ steps.tag.outputs.tag }}.zip
+          filename: ${{ matrix.name }}.zip
           directory: build/bin/
 
       - uses: TheDoctor0/zip-release@0.7.6
         with:
-          filename: ${{ matrix.name }}-${{ steps.tag.outputs.tag }}.zip
+          filename: ${{ matrix.name }}.zip
           directory: build/lib/
 
-      - uses: softprops/action-gh-release@v2
+      - uses: actions/upload-artifact@v4
         with:
-          files: |
-            build/bin/${{ matrix.name }}-${{ steps.tag.outputs.tag }}.zip
-            build/lib/${{ matrix.name }}-${{ steps.tag.outputs.tag }}.zip
-          append_body: true
-          fail_on_unmatched_files: true
+          name: library artifact
+          path: build/library/${{ matrix.name }}.zip
+          
+      - uses: actions/upload-artifact@v4
+        with:
+          name: binary artifact
+          path: build/bin/${{ matrix.name }}.zip
+          
