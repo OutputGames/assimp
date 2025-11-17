@@ -34,6 +34,8 @@ jobs:
           ls
           cd build
           ls
+          cd ../
+          ls
 
       - uses: TheDoctor0/zip-release@0.7.6
         with:
