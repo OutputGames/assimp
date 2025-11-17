@@ -33,18 +33,30 @@ jobs:
           cd ../
           ls
 
+      - name: Tag the repository
+        id: tag
+        run: |
+          # See https://docs.github.com/en/get-started/using-git/dealing-with-special-characters-in-branch-and-tag-names
+          TAG=v$(date -Iseconds | sed 's/[T:\+]/-/g')
+          echo "$TAG"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          git tag -a $TAG -m "Published version $TAG" ${GITHUB_SHA}
+          git push origin $TAG
+
       - uses: TheDoctor0/zip-release@0.7.6
         with:
-          filename: ${{ matrix.name }}-${{ github.event.release.tag_name }}.zip
+          filename: ${{ matrix.name }}-${{ steps.tag.outputs.tag }}.zip
           directory: build/bin/
 
       - uses: TheDoctor0/zip-release@0.7.6
         with:
-          filename: ${{ matrix.name }}-${{ github.event.release.tag_name }}.zip
+          filename: ${{ matrix.name }}-${{ steps.tag.outputs.tag }}.zip
           directory: build/lib/
 
       - uses: softprops/action-gh-release@v2
         with:
-          files: build/bin/${{ matrix.name }}-${{ github.event.release.tag_name }}.zip
+          files: |
+            build/bin/${{ matrix.name }}-${{ steps.tag.outputs.tag }}.zip
+            build/lib/${{ matrix.name }}-${{ steps.tag.outputs.tag }}.zip
           append_body: true
           fail_on_unmatched_files: true
