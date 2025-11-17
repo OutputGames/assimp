@@ -28,7 +28,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: library artifact
-          path: build/library/
+          path: build/lib/
           
       - uses: actions/upload-artifact@v4
         with:
