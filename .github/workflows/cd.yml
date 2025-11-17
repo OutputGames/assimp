@@ -15,17 +15,6 @@ jobs:
           - name: windows-x64
             os: windows-latest
             arch: x64
-          - name: windows-x86
-            os: windows-latest
-            arch: x86
-            cmake_args: -A Win32
-          - name: macos-x64
-            os: macos-13
-          - name: macos-arm64
-            os: macos-latest
-          - name: linux-x64
-            os: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v5
 
@@ -39,11 +28,22 @@ jobs:
         run: |
           cmake -B build -S . ${{ matrix.cmake_args }} -DCMAKE_BUILD_TYPE=Release -DASSIMP_BUILD_TESTS=OFF
           cmake --build build --config Release
+          
+      - name: list files
+        run: |
+          ls
+          cd build
+          ls
 
       - uses: TheDoctor0/zip-release@0.7.6
         with:
           filename: ${{ matrix.name }}-${{ github.event.release.tag_name }}.zip
           directory: build/bin/
+
+      - uses: TheDoctor0/zip-release@0.7.6
+        with:
+          filename: ${{ matrix.name }}-${{ github.event.release.tag_name }}.zip
+          directory: build/lib/
 
       - uses: softprops/action-gh-release@v2
         with:
